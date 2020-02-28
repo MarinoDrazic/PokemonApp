@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 
 class HomePageBackground extends StatelessWidget {
   final screenHeight;
-
-  const HomePageBackground({Key key, @required this.screenHeight})
+  final color;
+  const HomePageBackground(
+      {Key key, @required this.screenHeight, @required this.color})
       : super(key: key);
 
   @override
@@ -14,7 +15,7 @@ class HomePageBackground extends StatelessWidget {
       clipper: BottomShapeClipper(),
       child: Container(
         height: screenHeight * 0.5,
-        color: Color.fromARGB(255, 244, 209, 65),
+        color: color,
       ),
     );
   }
