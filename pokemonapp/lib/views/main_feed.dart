@@ -5,8 +5,10 @@ import 'package:pokemonapp/models/pokemon_start.dart';
 import 'package:pokemonapp/services/api_response.dart';
 import 'package:pokemonapp/services/pokemon_service.dart';
 import 'package:pokemonapp/views/components/home_page_background.dart';
+import 'package:pokemonapp/views/components/main_top_bar.dart';
 
 import 'components/pokemon_card.dart';
+import 'components/pokemon_details_topbar.dart';
 
 class MainFeed extends StatefulWidget {
   @override
@@ -47,67 +49,62 @@ class _MainFeedState extends State<MainFeed> {
                 screenHeight: MediaQuery.of(context).size.height,
                 color: Color.fromARGB(255, 255, 215, 111)),
             Positioned(
+              top: 140,
+              left: 23,
               child: Padding(
                 padding: EdgeInsets.fromLTRB(0, 50, 0, 0),
                 child: Align(
                   alignment: Alignment.topCenter,
                   child: Column(children: <Widget>[
-                    CircleAvatar(
-                      radius: 90,
-                      backgroundColor: Colors.white,
-                      child: CircleAvatar(
-                        radius: 81,
-                        backgroundColor: Colors.white,
-                        foregroundColor: Colors.black,
-                        backgroundImage: ExactAssetImage("assets/kanye.jpg"),
-                      ),
-                    ),
                     Padding(
                       padding: EdgeInsets.only(top: 20),
-                      child: Text("Welcome Back Kanye!",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 30)),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 20),
-                      child: Text("Here are all your Favorite pokemon:",
-                          style: TextStyle(fontSize: 20)),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 20),
-                      child: Card(
-                        clipBehavior: Clip.antiAliasWithSaveLayer,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20.0),
-                        ),
-                        child: InkWell(
-                          child: Container(
-                            width: MediaQuery.of(context).size.width * 0.9,
-                            height: MediaQuery.of(context).size.height * 0.6,
-                            child: isLoading
-                                ? CircularProgressIndicator()
-                                : Builder(builder: (_) {
-                                    if (isLoading) {
-                                      return Center(
-                                          child: CircularProgressIndicator());
-                                    }
-
-                                    if (_apiResponse.error) {
-                                      return Center(
-                                          child:
-                                              Text(_apiResponse.errorMessage));
-                                    }
-                                    return PokemonCard(
-                                        pokemonResponse: _pokemonResponse);
-                                  }),
-                          ),
-                        ),
+                      child: Container(
+                        width: MediaQuery.of(context).size.width * 0.9,
+                        height: MediaQuery.of(context).size.height * 0.8,
+                        child: isLoading
+                            ? Center(
+                                child: SizedBox(
+                                    height: 100.0,
+                                    width: 100.0,
+                                    child: CircularProgressIndicator(
+                                        valueColor:
+                                            AlwaysStoppedAnimation(Colors.blue),
+                                        strokeWidth: 10.0)),
+                              )
+                            : Builder(builder: (_) {
+                                if (_apiResponse.error) {
+                                  return Center(
+                                      child: Text(_apiResponse.errorMessage));
+                                }
+                                return PokemonCard(
+                                    pokemonResponse: _pokemonResponse);
+                              }),
                       ),
                     ),
                   ]),
                 ),
               ),
             ),
+            Positioned(
+              child: Padding(
+                  padding: EdgeInsets.only(top: 20),
+                  child: PokemonMainFeedTopBar()),
+            ),
+            Positioned(
+              child: Padding(
+                  padding: EdgeInsets.only(top: 20),
+                  child: SizedBox(
+                    height: MediaQuery.of(context).size.height,
+                  )),
+            ),
+            Positioned(
+                top: 130,
+                left: 20,
+                child: Text("Pokedex",
+                    style: TextStyle(
+                        fontSize: 40,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white))),
           ],
         ),
       ),

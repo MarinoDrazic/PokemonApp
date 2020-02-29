@@ -1,14 +1,46 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:pokemonapp/models/pokemon.dart';
+import 'package:pokemonapp/models/pokemon_biology.dart';
+import 'package:pokemonapp/services/api_response.dart';
 import 'package:pokemonapp/services/get_color_service.dart';
+import 'package:pokemonapp/services/pokemon_service.dart';
 import 'package:pokemonapp/views/components/pokemon_about.dart';
+import 'package:pokemonapp/views/components/pokemon_evolution.dart';
+import 'package:pokemonapp/views/components/pokemon_stats.dart';
 
 import 'components/home_page_background.dart';
 import 'components/pokemon_details_topbar.dart';
 
-class PokemonDetails extends StatelessWidget {
+class PokemonDetails extends StatefulWidget {
   const PokemonDetails({Key key, @required this.data}) : super(key: key);
   final Pokemon data;
+
+  @override
+  _PokemonDetailsState createState() => _PokemonDetailsState();
+}
+
+class _PokemonDetailsState extends State<PokemonDetails> {
+  PokemonService get service => GetIt.I<PokemonService>();
+  APIResponse<PokemonBiology> _pokemonBiology;
+
+  @override
+  void initState() {
+    _fetchNotes();
+    super.initState();
+  }
+
+  bool isLoading = false;
+
+  _fetchNotes() async {
+    setState(() {
+      isLoading = true;
+    });
+    _pokemonBiology = await service.getPokemonBiology(widget.data.species.url);
+    setState(() {
+      isLoading = false;
+    });
+  }
 
   Widget getTypeWidgets(List<Type> types) {
     return new Row(
@@ -43,11 +75,11 @@ class PokemonDetails extends StatelessWidget {
             children: <Widget>[
               Container(
                 height: MediaQuery.of(context).size.height,
-                color: getColorByType(data.types[0].type.name),
+                color: getColorByType(widget.data.types[0].type.name),
               ),
               HomePageBackground(
                 screenHeight: MediaQuery.of(context).size.height,
-                color: getColorByType(data.types[0].type.name),
+                color: getColorByType(widget.data.types[0].type.name),
               ),
               Positioned(
                   bottom: 0,
@@ -57,7 +89,7 @@ class PokemonDetails extends StatelessWidget {
                       borderRadius: BorderRadius.circular(80.0),
                     ),
                     child: DefaultTabController(
-                        length: 4,
+                        length: 3,
                         child: SizedBox(
                           width: MediaQuery.of(context).size.width,
                           height: MediaQuery.of(context).size.height * 0.55,
@@ -87,23 +119,33 @@ class PokemonDetails extends StatelessWidget {
                                               fontWeight: FontWeight.bold,
                                               color: Colors.black)),
                                     ),
-                                    Tab(
-                                      child: Text("Moves",
-                                          style: TextStyle(
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.black)),
-                                    ),
                                   ],
                                 ),
                               ),
                               Expanded(
                                 child: TabBarView(
                                   children: [
-                                    PokemonAbout(data: data),
-                                    Text("2"),
-                                    Text("3"),
-                                    Text("4"),
+                                    isLoading
+                                        ? Center(
+                                            child: SizedBox(
+                                                height: 100.0,
+                                                width: 100.0,
+                                                child: CircularProgressIndicator(
+                                                    valueColor:
+                                                        AlwaysStoppedAnimation(
+                                                            Colors.blue),
+                                                    strokeWidth: 10.0)),
+                                          )
+                                        : PokemonAbout(
+                                            data: widget.data,
+                                            biology: _pokemonBiology.data,
+                                          ),
+                                    PokemonStats(data: widget.data),
+                                    !isLoading
+                                        ? PokemonEvolution(
+                                            biology: _pokemonBiology.data,
+                                          )
+                                        : Container()
                                   ],
                                 ),
                               )
@@ -125,30 +167,30 @@ class PokemonDetails extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: <Widget>[
                             Text(
-                                data.name[0].toUpperCase() +
-                                    data.name.substring(1),
+                                widget.data.name[0].toUpperCase() +
+                                    widget.data.name.substring(1),
                                 style: TextStyle(
                                     fontSize: 40,
                                     fontWeight: FontWeight.bold,
                                     color: Colors.white)),
                             Spacer(),
-                            Text("#" + data.id.toString(),
+                            Text("#" + widget.data.id.toString(),
                                 style: TextStyle(
                                     fontSize: 25,
                                     fontWeight: FontWeight.bold,
                                     color: Colors.white))
                           ]),
                       Row(
-                        children: <Widget>[getTypeWidgets(data.types)],
+                        children: <Widget>[getTypeWidgets(widget.data.types)],
                       ),
                       Padding(
                         padding: const EdgeInsets.only(left: 50),
                         child: Row(
                           children: <Widget>[
                             Hero(
-                              tag: "transition" + data.name,
+                              tag: "transition" + widget.data.name,
                               child: Image.network(
-                                data.sprites.frontDefault,
+                                widget.data.sprites.frontDefault,
                                 width: 300,
                                 fit: BoxFit.cover,
                               ),

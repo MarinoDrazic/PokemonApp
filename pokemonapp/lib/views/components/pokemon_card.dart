@@ -23,19 +23,19 @@ class PokemonCard extends StatelessWidget {
         gridDelegate:
             SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
         itemBuilder: (BuildContext context, int index) {
-          return new Card(
-            child: InkWell(
-              splashColor: Colors.blue.withAlpha(30),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          PokemonDetails(data: _pokemonResponse.data[index])),
-                );
-              },
-              child: new GridTile(
-                  child: Container(
+          return new GridTile(
+              child: GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        PokemonDetails(data: _pokemonResponse.data[index])),
+              );
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(6.0),
+              child: Container(
                 decoration: new BoxDecoration(
                     color: getColorByType(
                         _pokemonResponse.data[index].types[0].type.name),
@@ -102,9 +102,9 @@ class PokemonCard extends StatelessWidget {
                     )
                   ],
                 ),
-              )),
+              ),
             ),
-          );
+          ));
         },
       ),
     );
