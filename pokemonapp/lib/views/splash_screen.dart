@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:pokemonapp/views/components/start_screen.dart';
 
 import 'main_feed.dart';
 
@@ -20,7 +21,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   void handleTimeout() {
     Navigator.of(context)
-        .pushReplacement(MaterialPageRoute(builder: (_) => MainFeed()));
+        .pushReplacement(MaterialPageRoute(builder: (_) => StartScreen()));
   }
 
   @override
