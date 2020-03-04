@@ -8,33 +8,49 @@ import 'package:pokemonapp/views/components/home_page_background.dart';
 import 'package:pokemonapp/views/components/main_top_bar.dart';
 
 import 'components/pokemon_card.dart';
-import 'components/pokemon_details_topbar.dart';
 
 class MainFeed extends StatefulWidget {
+  MainFeed({Key key, this.range}) : super(key: key);
+  List<int> range;
   @override
   _MainFeedState createState() => _MainFeedState();
 }
 
 class _MainFeedState extends State<MainFeed> {
   PokemonService get service => GetIt.I<PokemonService>();
-  APIResponse<PokemonStart> _apiResponse;
   APIResponse<List<Pokemon>> _pokemonResponse;
-
+  List<Pokemon> pokeList = [];
+  int alreadyFetched = 1; //pokemon from api start at 1.
+  int fetchTo = 1;
   bool isLoading = false;
   @override
   void initState() {
+    if (widget.range == null) {
+      widget.range = [1, 151];
+    }
+    alreadyFetched = widget.range[0];
+    fetchTo = widget.range[0];
     _fetchNotes();
     super.initState();
   }
 
   _fetchNotes() async {
     setState(() {
-      isLoading = true;
+      if (pokeList.length < 5) {
+        isLoading = true;
+      }
+      if (widget.range[1] < fetchTo + 20) {
+        fetchTo = widget.range[1];
+      } else {
+        fetchTo += 20;
+      }
     });
-    _apiResponse = await service.getPokemonStartList();
-    _pokemonResponse = await service.getPokemonList(_apiResponse.data);
+    _pokemonResponse =
+        await service.getPokemonListRange([alreadyFetched, fetchTo]);
+    pokeList = new List.from(pokeList)..addAll(_pokemonResponse.data);
 
     setState(() {
+      alreadyFetched = fetchTo;
       isLoading = false;
     });
   }
@@ -72,12 +88,14 @@ class _MainFeedState extends State<MainFeed> {
                                         strokeWidth: 10.0)),
                               )
                             : Builder(builder: (_) {
-                                if (_apiResponse.error) {
+                                if (_pokemonResponse.error) {
                                   return Center(
-                                      child: Text(_apiResponse.errorMessage));
+                                      child:
+                                          Text(_pokemonResponse.errorMessage));
                                 }
                                 return PokemonCard(
-                                    pokemonResponse: _pokemonResponse);
+                                    pokemonResponse: pokeList,
+                                    callback: _fetchNotes);
                               }),
                       ),
                     ),

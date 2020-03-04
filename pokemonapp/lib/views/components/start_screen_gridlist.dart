@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:pokemonapp/models/generation_tiles.dart';
 import 'package:pokemonapp/models/start_screen_titles.dart';
 
+import 'bottom_sheet_generations.dart';
+
 class StartScreenGridList extends StatelessWidget {
-  const StartScreenGridList({
-    Key key,
-    @required this.titles,
-  }) : super(key: key);
+  const StartScreenGridList(
+      {Key key, @required this.titles, @required this.generationTitles})
+      : super(key: key);
 
   final List<StartScreenTitles> titles;
+  final List<GenerationTiles> generationTitles;
 
   @override
   Widget build(BuildContext context) {
@@ -48,11 +51,19 @@ class StartScreenGridList extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20),
                     child: GestureDetector(
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => titles[0].travelTo),
-                        );
+                        index != 0
+                            ? Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => titles[0].travelTo),
+                              )
+                            : showModalBottomSheet(
+                                backgroundColor: Colors.transparent,
+                                isScrollControlled: true,
+                                context: context,
+                                builder: (context) => BottomSheetGenerations(
+                                      generationTitles: generationTitles,
+                                    ));
                       },
                       child: Stack(
                         children: <Widget>[

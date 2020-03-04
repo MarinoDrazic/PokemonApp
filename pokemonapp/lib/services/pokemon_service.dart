@@ -40,6 +40,22 @@ class PokemonService {
     return APIResponse<List<Pokemon>>(data: listaPokemona);
   }
 
+  Future<APIResponse<List<Pokemon>>> getPokemonListRange(
+      List<int> range) async {
+    List<Pokemon> listaPokemona = new List<Pokemon>();
+    List<Future> futures = [];
+    for (var i = range[0]; i < range[1]; i++) {
+      futures.add(http.get(APIBase + "pokemon/$i/").then((data) {
+        Pokemon temp = pokemonFromJson(data.body);
+        listaPokemona.add(temp);
+        return temp;
+      }));
+    }
+
+    await Future.wait(futures);
+    return APIResponse<List<Pokemon>>(data: listaPokemona);
+  }
+
   Future<APIResponse<PokemonBiology>> getPokemonBiology(String url) {
     return http.get(url).then((data) {
       if (data.statusCode == 200) {

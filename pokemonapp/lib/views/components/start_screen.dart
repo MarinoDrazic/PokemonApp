@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pokemonapp/models/generation_tiles.dart';
 import 'package:pokemonapp/models/start_screen_titles.dart';
 import 'package:pokemonapp/views/components/start_screen_gridlist.dart';
 
@@ -11,9 +12,12 @@ class StartScreen extends StatefulWidget {
 
 class _StartScreenState extends State<StartScreen> {
   List<StartScreenTitles> titles;
+  List<GenerationTiles> generationTitles;
+
   @override
   void initState() {
     titles = getStartScreenTitles();
+    generationTitles = getGenerationTitles();
     super.initState();
   }
 
@@ -64,7 +68,8 @@ class _StartScreenState extends State<StartScreen> {
                       ),
                     )),
               ),
-              StartScreenGridList(titles: titles),
+              StartScreenGridList(
+                  titles: titles, generationTitles: generationTitles),
               Stack(
                 children: <Widget>[
                   Container(
