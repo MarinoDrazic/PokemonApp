@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 
 class PokemonDetailsTopBar extends StatelessWidget {
+  PokemonDetailsTopBar({this.start, this.stop});
+  Function start;
+  Function stop;
+  bool isPlaying = false;
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -23,10 +28,22 @@ class PokemonDetailsTopBar extends StatelessWidget {
           SizedBox(
             width: 20,
           ),
-          Icon(
-            Icons.favorite_border,
-            color: Colors.white,
-            size: 30,
+          GestureDetector(
+            onTap: () {
+              isPlaying ? stop() : start();
+              isPlaying = !isPlaying;
+            },
+            child: isPlaying
+                ? Icon(
+                    Icons.volume_off,
+                    color: Colors.white,
+                    size: 30,
+                  )
+                : Icon(
+                    Icons.volume_up,
+                    color: Colors.white,
+                    size: 30,
+                  ),
           ),
         ],
       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pokemonapp/models/pokemon.dart';
 import 'package:pokemonapp/models/pokemon_biology.dart';
@@ -20,14 +21,51 @@ class PokemonDetails extends StatefulWidget {
   _PokemonDetailsState createState() => _PokemonDetailsState();
 }
 
+enum TtsState { playing, stopped }
+
 class _PokemonDetailsState extends State<PokemonDetails> {
   PokemonService get service => GetIt.I<PokemonService>();
   APIResponse<PokemonBiology> _pokemonBiology;
+  FlutterTts flutterTts;
+  double volume = 0.5;
+  double pitch = 0.9;
+  double rate = 0.6;
+
+  TtsState ttsState = TtsState.stopped;
+
+  get isPlaying => ttsState == TtsState.playing;
+
+  get isStopped => ttsState == TtsState.stopped;
 
   @override
   void initState() {
+    initTts();
     _fetchNotes();
     super.initState();
+  }
+
+  initTts() {
+    flutterTts = FlutterTts();
+    flutterTts.setStartHandler(() {
+      setState(() {
+        print("playing");
+        ttsState = TtsState.playing;
+      });
+    });
+
+    flutterTts.setCompletionHandler(() {
+      setState(() {
+        print("Complete");
+        ttsState = TtsState.stopped;
+      });
+    });
+
+    flutterTts.setErrorHandler((msg) {
+      setState(() {
+        print("error: $msg");
+        ttsState = TtsState.stopped;
+      });
+    });
   }
 
   bool isLoading = false;
@@ -40,6 +78,45 @@ class _PokemonDetailsState extends State<PokemonDetails> {
     setState(() {
       isLoading = false;
     });
+  }
+
+  String getFlavorText() {
+    String flavorText = "";
+    for (var element in _pokemonBiology.data.flavorTextEntries) {
+      if (element.language.name == "en") {
+        flavorText = element.flavorText;
+        break;
+      }
+    }
+    return flavorText;
+  }
+
+  Future _speak() async {
+    final voices = await flutterTts.getVoices;
+    //debugPrint(voices);
+    await flutterTts.setVoice("en-us-x-sfg#male_2-local");
+    await flutterTts.setVolume(volume);
+    await flutterTts.setSpeechRate(rate);
+    await flutterTts.setPitch(pitch);
+
+    if (_pokemonBiology != null) {
+      String flavorText = getFlavorText();
+      if (flavorText != "") {
+        var result = await flutterTts.speak(flavorText);
+        if (result == 1) setState(() => ttsState = TtsState.playing);
+      }
+    }
+  }
+
+  Future _stop() async {
+    var result = await flutterTts.stop();
+    if (result == 1) setState(() => ttsState = TtsState.stopped);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    flutterTts.stop();
   }
 
   Widget getTypeWidgets(List<Type> types) {
@@ -155,7 +232,10 @@ class _PokemonDetailsState extends State<PokemonDetails> {
                   )),
               Padding(
                   padding: EdgeInsets.only(top: 20),
-                  child: PokemonDetailsTopBar()),
+                  child: PokemonDetailsTopBar(
+                    start: _speak,
+                    stop: _stop,
+                  )),
               Positioned(
                 top: 110,
                 left: 30,
